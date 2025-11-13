@@ -15,14 +15,40 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: function(origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "https://kambaz-next-js-chi.vercel.app",
+        process.env.CLIENT_URL
+      ];
+      
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
   })
 );
 
+// Trust proxy in production (required for Render)
+if (process.env.SERVER_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+// Session configuration with proper settings for cross-origin
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    secure: process.env.SERVER_ENV === "production", // true in production for HTTPS
+    sameSite: process.env.SERVER_ENV === "production" ? "none" : "lax", // "none" required for cross-origin
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 24 hours
+  }
 };
 
 app.use(session(sessionOptions));
