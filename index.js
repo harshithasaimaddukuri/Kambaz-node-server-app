@@ -12,42 +12,32 @@ import Lab5 from "./Lab5/index.js";
 
 const app = express();
 
-app.use(
-  cors({
-    credentials: true,
-    origin: function(origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "https://kambaz-next-js-chi.vercel.app",
-        process.env.CLIENT_URL
-      ];
-      
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  })
-);
+app.set("trust proxy", 1);
 
-// Trust proxy in production (required for Render)
-if (process.env.SERVER_ENV === "production") {
-  app.set("trust proxy", 1);
-}
+const corsOptions = {
+  credentials: true,
+  origin: [
+    "http://localhost:3000",
+    "https://kambaz-next-js-chi.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"],
+  credentials: true
+};
 
-// Session configuration with proper settings for cross-origin
+app.use(cors(corsOptions));
+
+// Session configuration for cross-origin
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Changed to true
+  proxy: true, // Added for Render
   cookie: {
-    secure: process.env.SERVER_ENV === "production", // true in production for HTTPS
-    sameSite: process.env.SERVER_ENV === "production" ? "none" : "lax", // "none" required for cross-origin
+    secure: true, // Always true for production
+    sameSite: "none", // Required for cross-site cookies
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 // 24 hours
+    maxAge: 1000 * 60 * 60 * 24
   }
 };
 
