@@ -12,10 +12,21 @@ import Lab5 from "./Lab5/index.js";
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.CLIENT_URL,  
+];
+
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
   })
 );
 
@@ -26,6 +37,7 @@ const sessionOptions = {
 };
 
 app.use(session(sessionOptions));
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
