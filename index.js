@@ -12,33 +12,17 @@ import Lab5 from "./Lab5/index.js";
 
 const app = express();
 
-app.set("trust proxy", 1);
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+  })
+);
 
-const corsOptions = {
-  credentials: true,
-  origin: [
-    "http://localhost:3000",
-    "https://kambaz-next-js-chi.vercel.app"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
-
-// Session configuration for cross-origin
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
-  saveUninitialized: true, // Changed to true
-  proxy: true, // Added for Render
-  cookie: {
-    secure: true, // Always true for production
-    sameSite: "none", // Required for cross-site cookies
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24
-  }
+  saveUninitialized: false,
 };
 
 app.use(session(sessionOptions));
