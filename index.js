@@ -12,20 +12,15 @@ import Lab5 from "./Lab5/index.js";
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.CLIENT_URL,  
-];
-
 app.use(
   cors({
     credentials: true,
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      if (!origin) {
+        return callback(null, true);
       }
+      
+      return callback(null, true);
     },
   })
 );
