@@ -15,13 +15,13 @@ const app = express();
 
 // Simple CORS setup that will work
 app.use(cors({
-  origin: true, // This allows all origins temporarily
+  origin: true, 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Alternative: If you want to restrict to specific origins later
+
 /*
 const allowedOrigins = [
   'http://localhost:3000',
@@ -63,7 +63,7 @@ const sessionOptions = {
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 7, 
     httpOnly: true
   }
 };
@@ -104,6 +104,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// IMPORTANT: Use process.env.PORT for Render
 const PORT = process.env.PORT || 10000; 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
