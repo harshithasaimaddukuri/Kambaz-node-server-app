@@ -1,33 +1,39 @@
-export default function ModuleRoutes(app, db) {
-  app.get("/api/courses/:courseId/modules", (req, res) => {
-    const modules = db.modules?.filter(m => m.course === req.params.courseId) || [];
-    res.json(modules);
-  });
+import ModulesDao from "../Modules/dao.js"
 
-  app.post("/api/courses/:courseId/modules", (req, res) => {
-    const newModule = {
+export default function ModulesRoutes(app, db) {
+  const dao = ModulesDao(db)
+
+  const findModulesForCourse = (req, res) => {
+    const { courseId } = req.params
+    const modules = dao.findModulesForCourse(courseId)
+    res.json(modules)
+  }
+
+  const createModuleForCourse = (req, res) => {
+    const { courseId } = req.params
+    const module = {
       ...req.body,
-      _id: `M${Date.now()}`,
-      course: req.params.courseId,
-    };
-    db.modules.push(newModule);
-    res.json(newModule);
-  });
-
-  app.delete("/api/courses/:courseId/modules/:moduleId", (req, res) => {
-    const { moduleId } = req.params;
-    db.modules = db.modules.filter(m => m._id !== moduleId);
-    res.sendStatus(200);
-  });
-
-  app.put("/api/courses/:courseId/modules/:moduleId", (req, res) => {
-    const { moduleId } = req.params;
-    const moduleIndex = db.modules.findIndex(m => m._id === moduleId);
-    if (moduleIndex !== -1) {
-      db.modules[moduleIndex] = { ...db.modules[moduleIndex], ...req.body };
-      res.json(db.modules[moduleIndex]);
-    } else {
-      res.sendStatus(404);
+      course: courseId,
     }
-  });
+    const newModule = dao.createModule(module)
+    res.send(newModule)
+  }
+
+  const deleteModule = (req, res) => {
+    const { moduleId } = req.params
+    const status = dao.deleteModule(moduleId)
+    res.send(status)
+  }
+
+  const updateModule = (req, res) => {
+    const { moduleId } = req.params
+    const moduleUpdates = req.body
+    const status = dao.updateModule(moduleId, moduleUpdates)
+    res.send(status)
+  }
+
+  app.get("/api/courses/:courseId/modules", findModulesForCourse)
+  app.post("/api/courses/:courseId/modules", createModuleForCourse)
+  app.delete("/api/modules/:moduleId", deleteModule)
+  app.put("/api/modules/:moduleId", updateModule)
 }
