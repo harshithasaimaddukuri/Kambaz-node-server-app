@@ -1,12 +1,12 @@
 import express from 'express'
 import Hello from './Hello.js'
 import Lab5 from './Lab5/index.js'
-import db from "./kambaz/Database/index.js";
-import UserRoutes from "./kambaz/Users/routes.js";
-import CourseRoutes from "./kambaz/Courses/routes.js";
-import ModulesRoutes from "./kambaz/Modules/routes.js";
-import AssignmentsRoutes from "./kambaz/Assignments/routes.js";
-import EnrollmentsRoutes from "./kambaz/Enrollments/routes.js";
+import db from "./Kambaz/Database/index.js";
+import UserRoutes from "./Kambaz/Users/routes.js";
+import CourseRoutes from "./Kambaz/Courses/routes.js";
+import ModulesRoutes from "./Kambaz/Modules/routes.js";
+import AssignmentsRoutes from "./Kambaz/Assignments/routes.js";
+import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
 import cors from "cors";
 import "dotenv/config";
 import session from "express-session";
@@ -32,14 +32,19 @@ const sessionOptions = {
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.SERVER_ENV !== "development",
-    sameSite: process.env.SERVER_ENV !== "development" ? "none" : "lax",
+    secure: false,
     maxAge: 1000 * 60 * 60 * 24,
   }
 };
 
 if (process.env.SERVER_ENV !== "development") {
   sessionOptions.proxy = true;
+  sessionOptions.cookie = {
+    sameSite: "none",
+    secure: true,
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24,
+  };
 }
 
 app.use(session(sessionOptions));
