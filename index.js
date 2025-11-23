@@ -32,19 +32,14 @@ const sessionOptions = {
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,
+    secure: process.env.SERVER_ENV !== "development", // true in production
+    sameSite: process.env.SERVER_ENV !== "development" ? "none" : "lax", // "none" for cross-site
     maxAge: 1000 * 60 * 60 * 24,
   }
 };
 
 if (process.env.SERVER_ENV !== "development") {
   sessionOptions.proxy = true;
-  sessionOptions.cookie = {
-    sameSite: "none",
-    secure: true,
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24,
-  };
 }
 
 app.use(session(sessionOptions));
