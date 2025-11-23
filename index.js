@@ -10,39 +10,50 @@ import EnrollmentsRoutes from "./kambaz/Enrollments/routes.js";
 import cors from "cors";
 import "dotenv/config";
 import session from "express-session";
+
 const app = express();
+
+const clientUrl = process.env.CLIENT_URL 
+  ? process.env.CLIENT_URL.trim().replace(/['"]/g, '') 
+  : "http://localhost:3000";
+
+console.log("CLIENT_URL:", clientUrl); 
+
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: clientUrl,
   })
 );
+
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.SERVER_ENV !== "development",
+    sameSite: process.env.SERVER_ENV !== "development" ? "none" : "lax",
+    maxAge: 1000 * 60 * 60 * 24,
+  }
 };
+
 if (process.env.SERVER_ENV !== "development") {
   sessionOptions.proxy = true;
-  sessionOptions.cookie = {
-    sameSite: "none",
-    secure: true,
-    domain: process.env.SERVER_URL,
-  };
 }
+
 app.use(session(sessionOptions));
 app.use(express.json());
 
 UserRoutes(app, db);
-
 CourseRoutes(app, db);
-
 ModulesRoutes(app, db);
-
 AssignmentsRoutes(app, db);
-
 EnrollmentsRoutes(app, db);
-
 Lab5(app)
 Hello(app)
-app.listen(4000)
+
+app.listen(4000, () => {
+  console.log("Server is running on port 4000");
+  console.log("CORS origin:", clientUrl);
+});
